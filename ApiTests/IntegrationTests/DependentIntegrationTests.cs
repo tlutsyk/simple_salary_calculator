@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Api.Dtos.Dependent;
-using Api.Models;
 using Xunit;
 
 namespace ApiTests.IntegrationTests;
@@ -15,14 +14,14 @@ public class DependentIntegrationTests : IntegrationTest
     public async Task WhenAskedForAllDependents_ShouldReturnAllDependents()
     {
         var response = await HttpClient.GetAsync("/api/v1/dependents");
-        var dependents = new List<GetDependentDto>
+        var dependents = new List<DependentDto>
         {
             new()
             {
                 Id = 1,
                 FirstName = "Spouse",
                 LastName = "Morant",
-                Relationship = Relationship.Spouse,
+                Relationship = "Spouse",
                 DateOfBirth = new DateTime(1998, 3, 3)
             },
             new()
@@ -30,7 +29,7 @@ public class DependentIntegrationTests : IntegrationTest
                 Id = 2,
                 FirstName = "Child1",
                 LastName = "Morant",
-                Relationship = Relationship.Child,
+                Relationship = "Child",
                 DateOfBirth = new DateTime(2020, 6, 23)
             },
             new()
@@ -38,7 +37,7 @@ public class DependentIntegrationTests : IntegrationTest
                 Id = 3,
                 FirstName = "Child2",
                 LastName = "Morant",
-                Relationship = Relationship.Child,
+                Relationship = "Child",
                 DateOfBirth = new DateTime(2021, 5, 18)
             },
             new()
@@ -46,7 +45,7 @@ public class DependentIntegrationTests : IntegrationTest
                 Id = 4,
                 FirstName = "DP",
                 LastName = "Jordan",
-                Relationship = Relationship.DomesticPartner,
+                Relationship = "DomesticPartner",
                 DateOfBirth = new DateTime(1974, 1, 2)
             }
         };
@@ -58,12 +57,12 @@ public class DependentIntegrationTests : IntegrationTest
     public async Task WhenAskedForADependent_ShouldReturnCorrectDependent()
     {
         var response = await HttpClient.GetAsync("/api/v1/dependents/1");
-        var dependent = new GetDependentDto
+        var dependent = new DependentDto
         {
             Id = 1,
             FirstName = "Spouse",
             LastName = "Morant",
-            Relationship = Relationship.Spouse,
+            Relationship = "Spouse",
             DateOfBirth = new DateTime(1998, 3, 3)
         };
         await response.ShouldReturn(HttpStatusCode.OK, dependent);

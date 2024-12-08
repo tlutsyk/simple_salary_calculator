@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Api.Dtos.Employee;
-using Api.Models;
 using Xunit;
 
 namespace ApiTests.IntegrationTests;
@@ -14,7 +13,7 @@ public class EmployeeIntegrationTests : IntegrationTest
     public async Task WhenAskedForAllEmployees_ShouldReturnAllEmployees()
     {
         var response = await HttpClient.GetAsync("/api/v1/employees");
-        var employees = new List<GetEmployeeDto>
+        var employees = new List<EmployeeDto>
         {
             new()
             {
@@ -38,7 +37,7 @@ public class EmployeeIntegrationTests : IntegrationTest
                         Id = 1,
                         FirstName = "Spouse",
                         LastName = "Morant",
-                        Relationship = Relationship.Spouse,
+                        Relationship = "Spouse",
                         DateOfBirth = new DateTime(1998, 3, 3)
                     },
                     new()
@@ -46,7 +45,7 @@ public class EmployeeIntegrationTests : IntegrationTest
                         Id = 2,
                         FirstName = "Child1",
                         LastName = "Morant",
-                        Relationship = Relationship.Child,
+                        Relationship = "Child",
                         DateOfBirth = new DateTime(2020, 6, 23)
                     },
                     new()
@@ -54,7 +53,7 @@ public class EmployeeIntegrationTests : IntegrationTest
                         Id = 3,
                         FirstName = "Child2",
                         LastName = "Morant",
-                        Relationship = Relationship.Child,
+                        Relationship = "Child",
                         DateOfBirth = new DateTime(2021, 5, 18)
                     }
                 ]
@@ -73,7 +72,7 @@ public class EmployeeIntegrationTests : IntegrationTest
                         Id = 4,
                         FirstName = "DP",
                         LastName = "Jordan",
-                        Relationship = Relationship.DomesticPartner,
+                        Relationship = "DomesticPartner",
                         DateOfBirth = new DateTime(1974, 1, 2)
                     }
                 ]
@@ -87,7 +86,7 @@ public class EmployeeIntegrationTests : IntegrationTest
     public async Task WhenAskedForAnEmployee_ShouldReturnCorrectEmployee()
     {
         var response = await HttpClient.GetAsync("/api/v1/employees/1");
-        var employee = new GetEmployeeDto
+        var employee = new EmployeeDto
         {
             Id = 1,
             FirstName = "LeBron",

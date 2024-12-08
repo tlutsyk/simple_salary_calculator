@@ -1,5 +1,11 @@
-﻿using Api.Dtos.Employee;
-using Api.Models;
+﻿using Api.Converters;
+using Api.Dtos.Employee;
+using ApplicationServices.Features.Employees.GetByFilters;
+using ApplicationServices.Features.Employees.GetById;
+using ApplicationServices.Features.Employees.GetCurrentSalary;
+using CSharpFunctionalExtensions;
+using Domain.Employee.ValueObjects;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -7,92 +13,42 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/v1/employees")]
-public class EmployeesController : ControllerBase
+public class EmployeesController(IMediator mediator) : ControllerBase
 {
+    [HttpPost("{id}/paycheck")]
     [SwaggerOperation(Summary = "Get employee by id")]
-    [HttpGet("{id}")]
-    public async Task<ActionResult<ApiResponse<GetEmployeeDto>>> Get(int id)
+    public async Task<ActionResult<PaycheckDto>> Get(int id, GetPaycheckDto dto, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var request = new GetEmployeePaycheckRequest(new EmployeeId(id), dto.AtTime);
+
+        var result = await mediator.Send(request, cancellationToken);
+
+        return result.Match(
+            onSuccess: paycheck => (ActionResult<PaycheckDto>)Ok(paycheck.ToDto()),
+            onFailure: _ => BadRequest()); //  add problem details;
     }
 
-    [SwaggerOperation(Summary = "Get all employees")]
-    [HttpGet]
-    public async Task<ActionResult<ApiResponse<List<GetEmployeeDto>>>> GetAll()
+    [HttpGet("{id}")]
+    [SwaggerOperation(Summary = "Get employee by id")]
+    public async Task<ActionResult<EmployeeDto>> Get(int id, CancellationToken cancellationToken)
     {
-        //task: use a more realistic production approach
-        var employees = new List<GetEmployeeDto>
-        {
-            new()
-            {
-                Id = 1,
-                FirstName = "LeBron",
-                LastName = "James",
-                Salary = 75420.99m,
-                DateOfBirth = new DateTime(1984, 12, 30)
-            },
-            new()
-            {
-                Id = 2,
-                FirstName = "Ja",
-                LastName = "Morant",
-                Salary = 92365.22m,
-                DateOfBirth = new DateTime(1999, 8, 10),
-                Dependents =
-                [
-                    new()
-                    {
-                        Id = 1,
-                        FirstName = "Spouse",
-                        LastName = "Morant",
-                        Relationship = Relationship.Spouse,
-                        DateOfBirth = new DateTime(1998, 3, 3)
-                    },
-                    new()
-                    {
-                        Id = 2,
-                        FirstName = "Child1",
-                        LastName = "Morant",
-                        Relationship = Relationship.Child,
-                        DateOfBirth = new DateTime(2020, 6, 23)
-                    },
-                    new()
-                    {
-                        Id = 3,
-                        FirstName = "Child2",
-                        LastName = "Morant",
-                        Relationship = Relationship.Child,
-                        DateOfBirth = new DateTime(2021, 5, 18)
-                    }
-                ]
-            },
-            new()
-            {
-                Id = 3,
-                FirstName = "Michael",
-                LastName = "Jordan",
-                Salary = 143211.12m,
-                DateOfBirth = new DateTime(1963, 2, 17),
-                Dependents =
-                [
-                    new()
-                    {
-                        Id = 4,
-                        FirstName = "DP",
-                        LastName = "Jordan",
-                        Relationship = Relationship.DomesticPartner,
-                        DateOfBirth = new DateTime(1974, 1, 2)
-                    }
-                ]
-            }
-        };
+        var request = new GetEmployeeById(new EmployeeId(id));
 
-        var result = new ApiResponse<List<GetEmployeeDto>>
-        {
-            Data = employees,
-            Success = true
-        };
+        var maybeEmployee = await mediator.Send(request, cancellationToken);
+        
+        return maybeEmployee.Match(
+            employee => (ActionResult<EmployeeDto>)Ok(employee.ToDto()),
+            () => NotFound());
+    }
 
-        return result;
+    [HttpGet]
+    [SwaggerOperation(Summary = "Get all employees")]
+    // todo: add query filters with pagination's
+    public async Task<ActionResult<EmployeeListDto>> GetAll(CancellationToken cancellationToken)
+    {
+        var request = new GetEmployeeByFilters();
+        var response = await mediator.Send(request, cancellationToken);
+        
+        return Ok(response.ToDto());
     }
 }

@@ -1,9 +1,27 @@
+using ApplicationServices.Features.Employees.GetById;
+using DAL.Repositories;
+using Domain.Calculator;
+using Domain.Employee;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IEmployeeRepository, DependentRepositoryMock>();
+
+// Todo: Add cache decorators if it is necessary;
+builder.Services.AddScoped<IEmployeeQueryRepository, DependentRepositoryMock>();
+
+builder.Services.AddSingleton<IPaycheckCalculator, PaycheckCalculator>();
+
+builder.Services.AddMediatR(config =>
+{
+    config.RegisterServicesFromAssemblies(
+        typeof(GetEmployeeById).Assembly,
+        typeof(DependentRepositoryMock).Assembly);
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -36,7 +54,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(allowLocalhost);
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();

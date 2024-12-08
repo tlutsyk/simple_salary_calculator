@@ -1,9 +1,8 @@
 ﻿using System.Text.Json.Serialization;
-using Api.Models;
 
 namespace Api.Dtos.Dependent;
 
-public class GetDependentDto
+public class DependentDto
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -18,5 +17,5 @@ public class GetDependentDto
     public DateTime DateOfBirth { get; set; }
 
     [JsonPropertyName("relationship")]
-    public Relationship Relationship { get; set; }
+    public string Relationship { get; set; } = null!;
 }

@@ -3,7 +3,7 @@ using Api.Dtos.Dependent;
 
 namespace Api.Dtos.Employee;
 
-public class GetEmployeeDto
+public class EmployeeDto
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -21,5 +21,5 @@ public class GetEmployeeDto
     public DateTime DateOfBirth { get; set; }
 
     [JsonPropertyName("dependents")]
-    public GetDependentDto[] Dependents { get; set; } = null!;
+    public DependentDto[] Dependents { get; set; } = null!;
 }
